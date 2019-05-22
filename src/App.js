@@ -1,5 +1,4 @@
 import React from 'react';
-import logo from './logo.svg';
 import yellowLockers from './img/lockers.png';
 import blueLockers from './img/blue-lockers.png';
 import motorcycle from './img/motorcycle-storage.png';
@@ -11,6 +10,7 @@ import Card from 'react-bootstrap/Card';
 import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import Carousel from 'react-bootstrap/Carousel';
+import { Localized } from 'fluent-react/compat';
 import './App.css';
 
 function App() {
@@ -21,15 +21,17 @@ function App() {
           <Carousel.Item>
             <Image src={yellowLockers} alt="first slide" fluid rounded />
             <Carousel.Caption>
-              <h3>first slide label</h3>
-              <p>nulla vitae elit libero, a pharetra augue mollis interdum.</p>
+              <Localized id="carousel-papa-bear-header">
+                <h3>papa bear lockers</h3>
+              </Localized>
+              <p>big enough for big bikes and large tool collections</p>
             </Carousel.Caption>
           </Carousel.Item>
           <Carousel.Item>
             <Image src={blueLockers} alt="second slide" fluid rounded />
             <Carousel.Caption>
-              <h3>second slide label</h3>
-              <p>lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+              <h3>baby bear lockers</h3>
+              <p>skis, snowboards, boots and all your heavy winter gear</p>
             </Carousel.Caption>
           </Carousel.Item>
         </Carousel>
@@ -39,8 +41,10 @@ function App() {
           <Card.Img variant="top" src={motorcycle} fluid rounded />
           <Card.Body>
             <Card.Title>papa bear locker</Card.Title>
+            <Button variant="primary" className="float-right">book now</Button>
             <Card.Text>
-              our largest locker. big enough for a quad bike and tool shop.
+              our largest locker.<br />
+              big enough for a quad bike and tool shop.
             </Card.Text>
             <ul>
               <li>
@@ -81,13 +85,13 @@ function App() {
                 </ul>
               </li>
             </ul>
-            <Button variant="primary" className="align-bottom float-right">book now</Button>
           </Card.Body>
         </Card>
         <Card style={{ width: '30%', marginRight: '10px' }}>
           <Card.Img variant="top" src={cube} fluid rounded />
           <Card.Body>
             <Card.Title>mama bear locker</Card.Title>
+            <Button variant="primary" className="float-right">book now</Button>
             <Card.Text>
               space for bicycles, boxes, small furniture and luggage
             </Card.Text>
@@ -131,13 +135,13 @@ function App() {
                 </ul>
               </li>
             </ul>
-            <Button variant="primary" className="align-bottom float-right">book now</Button>
           </Card.Body>
         </Card>
         <Card style={{ width: '30%' }}>
           <Card.Img variant="top" src={ski} fluid rounded />
           <Card.Body>
             <Card.Title>baby bear locker</Card.Title>
+            <Button variant="primary" className="float-right">book now</Button>
             <Card.Text>
               a secure place for skis, snowboards, winter gear and boots
             </Card.Text>
@@ -177,7 +181,6 @@ function App() {
                 </ul>
               </li>
             </ul>
-            <Button variant="primary" className="align-bottom float-right">book now</Button>
           </Card.Body>
         </Card>
       </Row>
