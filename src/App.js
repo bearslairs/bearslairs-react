@@ -30,6 +30,7 @@ class App extends Component {
       title: '',
       subtitle: '',
       carousel: [],
+      blurbs: [],
       cards: []
     }
   };
@@ -80,6 +81,18 @@ class App extends Component {
               ))
             }
           </Carousel>
+        </Row>
+        <Row style={{ paddingTop: '10px' }}>
+            {
+              this.state.copy.blurbs.map((blurb) => (
+                <h4>{blurb.title}</h4>
+                {
+                  blurb.copy.map((paragraph) => (
+                    <p>{paragraph}</p>
+                  ))
+                }
+              ))
+            }
         </Row>
         <Row style={{ paddingTop: '10px' }}>
           {
