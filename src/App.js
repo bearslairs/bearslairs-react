@@ -37,6 +37,15 @@ class App extends Component {
   render() {
     return (
       <Container>
+        <header className="App-header clearfix">
+          <h1 className="float-left">bears lairs</h1>
+          <h2 className="float-left text-muted">secure, self-storage in bansko with 24/7 access</h2>
+          <span className="float-right text-muted">
+            <a href="" className="text-muted">bg</a>
+            <a href="">en</a>
+            <a href="" className="text-muted">ru</a>
+          </span>
+        </header>
         <Row style={{ paddingTop: '10px' }}>
           <Carousel>
             {
@@ -59,8 +68,8 @@ class App extends Component {
             this.state.copy.cards.map((card) => (
               <Card style={{ width: '30%', marginRight: '10px' }}>
                 <Card.Header as="h3">
-                  <Image src={card.icon.url} alt={card.icon.alt} fluid rounded style={{ marginRight: '10px' }} />
                   {card.title}
+                  <Image src={card.icon.url} alt={card.icon.alt} fluid rounded style={{ marginRight: '10px' }} className="float-right" />
                 </Card.Header>
                 <Card.Img variant="top" src={card.image.url} alt={card.image.alt} fluid rounded />
                 <Card.Body>
