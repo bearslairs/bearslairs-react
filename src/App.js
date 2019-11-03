@@ -1,16 +1,10 @@
 import React, { Component } from 'react'
-import mamaBear from './img/mama-bear-icon.png';
-import blueLockers from './img/blue-lockers.png';
-import motorcycle from './img/motorcycle-storage.png';
-import cube from './img/cube-storage.png';
-import ski from './img/ski-storage.png';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Card from 'react-bootstrap/Card';
 import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import Carousel from 'react-bootstrap/Carousel';
-import { Localized } from 'fluent-react/compat';
 import './App.css';
 import Cookies from 'universal-cookie';
 
@@ -37,8 +31,8 @@ class App extends Component {
 
   componentDidMount() {
     //let qs = queryString.parse(this.props.location.search, { ignoreQueryPrefix: true });
-    if (cookies.get('lang') === null || cookies.get('lang') === undefined || (querystring.lang != undefined && querystring.lang != null)) {
-      this.state.language = (querystring.lang != undefined && querystring.lang != null)
+    if (cookies.get('lang') === null || cookies.get('lang') === undefined || (querystring.lang !== undefined && querystring.lang !== null)) {
+      this.state.language = (querystring.lang !== undefined && querystring.lang !== null)
         ? querystring.lang
         : 'en';
       cookies.set('lang', this.state.language, { path: '/' });
@@ -72,9 +66,7 @@ class App extends Component {
                 <Carousel.Item>
                   <Image src={carouselItem.image.url} alt={carouselItem.image.alt} fluid rounded />
                   <Carousel.Caption>
-                    <Localized id="carousel-papa-bear-header">
-                      <h3>{carouselItem.title}</h3>
-                    </Localized>
+                    <h3>{carouselItem.title}</h3>
                     <p>{carouselItem.description}</p>
                   </Carousel.Caption>
                 </Carousel.Item>
@@ -83,16 +75,18 @@ class App extends Component {
           </Carousel>
         </Row>
         <Row style={{ paddingTop: '10px' }}>
-            {
-              this.state.copy.blurbs.map((blurb) => (
+          {
+            this.state.copy.blurbs.map((blurb) => (
+              <div>
                 <h4>{blurb.title}</h4>
                 {
                   blurb.copy.map((paragraph) => (
                     <p>{paragraph}</p>
                   ))
                 }
-              ))
-            }
+              </div>
+            ))
+          }
         </Row>
         <Row style={{ paddingTop: '10px' }}>
           {
