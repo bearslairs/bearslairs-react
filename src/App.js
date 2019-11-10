@@ -178,6 +178,13 @@ class App extends Component {
             ))
           }
         </Row>
+        <footer className="clearfix" style={{ marginTop: '20px' }}>
+          <p className="text-center text-muted">
+            <a href={'https://github.com/bearslairs/bearslairs-data/edit/master/copy/' + this.state.language + '/home.json'}>
+              edit this page
+            </a>
+          </p>
+        </footer>
       </Container>
     );
   }
