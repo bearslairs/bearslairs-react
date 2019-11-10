@@ -7,22 +7,18 @@ import Button from 'react-bootstrap/Button';
 import Carousel from 'react-bootstrap/Carousel';
 import './App.css';
 import Cookies from 'universal-cookie';
-
-//import { withRouter } from 'react-router-dom';
+import Nav from './Nav';
 import * as qs from 'query-string';
-
-//import queryString from 'query-string'
 
 const querystring = qs.parse(window.location.search);
 const cookies = new Cookies();
 const CopyApi = 'https://raw.githubusercontent.com/bearslairs/bearslairs-data/master/copy';
+const languages = ['bg', 'en', 'ru'];
 
 class App extends Component {
   state = {
     language: 'en',
     copy: {
-      title: '',
-      subtitle: '',
       carousel: [],
       blurbs: [],
       cards: []
@@ -30,18 +26,21 @@ class App extends Component {
   };
 
   componentDidMount() {
-    //let qs = queryString.parse(this.props.location.search, { ignoreQueryPrefix: true });
-    if (cookies.get('lang') === null || cookies.get('lang') === undefined || (querystring.lang !== undefined && querystring.lang !== null)) {
-      this.state.language = (querystring.lang !== undefined && querystring.lang !== null)
-        ? querystring.lang
-        : 'en';
-      cookies.set('lang', this.state.language, { path: '/' });
-    }
-    fetch(CopyApi + '/' + this.state.language + '/home.json')
+    let language = languages.includes(querystring.lang) // if the querystring lang is set, use that
+      ? querystring.lang
+      : languages.includes(cookies.get('lang')) // else if the cookies contain a lang, use that
+        ? cookies.get('lang')
+        : this.state.language; // fall back to a default
+    this.setState(prevState => ({ 
+      language: language,
+      copy: prevState.copy
+    }));
+    cookies.set('lang', language, { path: '/' });
+    fetch(CopyApi + '/' + language + '/home.json')
     .then(responseCopyApi => responseCopyApi.json())
     .then((copy) => {
-      this.setState(currentState => ({
-        language: currentState.language,
+      this.setState(prevState => ({
+        language: prevState.language,
         copy: copy
       }));
     })
@@ -50,15 +49,7 @@ class App extends Component {
   render() {
     return (
       <Container>
-        <header className="App-header clearfix">
-          <h1 className="float-left">{this.state.copy.title}</h1>
-          <h2 className="float-left text-muted">{this.state.copy.subtitle}</h2>
-          <span className="float-right text-muted">
-            <a href="/?lang=bg" className="text-muted">bg</a>
-            <a href="/?lang=en">en</a>
-            <a href="/?lang=ru" className="text-muted">ru</a>
-          </span>
-        </header>
+        <Nav />
         <Row style={{ paddingTop: '10px' }}>
           <Carousel>
             {
