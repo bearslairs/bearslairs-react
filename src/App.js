@@ -76,7 +76,7 @@ class App extends Component {
         </Row>
         <Row style={{ paddingTop: '10px' }}>
           {
-            this.state.copy.blurbs.map((blurb) => (
+            this.state.copy.blurbs.slice(0, 2).map((blurb) => (
               <div>
                 <h4>{blurb.title}</h4>
                 {
@@ -90,7 +90,59 @@ class App extends Component {
         </Row>
         <Row style={{ paddingTop: '10px' }}>
           {
-            this.state.copy.cards.map((card) => (
+            this.state.copy.cards.slice(0, 3).map((card) => (
+              <Card style={{ width: '30%', marginRight: '10px' }}>
+                <Card.Header as="h3">
+                  {card.title}
+                  <Image src={card.icon.url} alt={card.icon.alt} fluid rounded style={{ marginRight: '10px' }} className="float-right" />
+                </Card.Header>
+                <Card.Img variant="top" src={card.image.url} alt={card.image.alt} fluid rounded />
+                <Card.Body>
+                  <Card.Title>
+                    {card.description.join(' ')}
+                  </Card.Title>
+                  <hr />
+                  <Card.Text>
+                    <ul>
+                      {
+                        card.features.map((feature) => (
+                          <li>
+                            {feature.text}
+                            <ul>
+                              {
+                                feature.details.map((detail) => (
+                                  <li>{detail}</li>
+                                ))
+                              }
+                            </ul>
+                          </li>
+                        ))
+                      }
+                    </ul>
+                    <Button variant="primary" className="float-right">{card.button.text}</Button>
+                  </Card.Text>
+                </Card.Body>
+              </Card>
+            ))
+          }
+        </Row>
+        <Row style={{ paddingTop: '10px' }}>
+          {
+            this.state.copy.blurbs.slice(2, 3).map((blurb) => (
+              <div>
+                <h4>{blurb.title}</h4>
+                {
+                  blurb.copy.map((paragraph) => (
+                    <p>{paragraph}</p>
+                  ))
+                }
+              </div>
+            ))
+          }
+        </Row>
+        <Row style={{ paddingTop: '10px' }}>
+          {
+            this.state.copy.cards.slice(3, 6).map((card) => (
               <Card style={{ width: '30%', marginRight: '10px' }}>
                 <Card.Header as="h3">
                   {card.title}
