@@ -119,7 +119,7 @@ class App extends Component {
         </Row>
         <Row style={{ paddingTop: '10px' }}>
           {
-            this.state.copy.blurbs.slice(2, 3).map((blurb) => (
+            this.state.copy.blurbs.slice(2, 4).map((blurb) => (
               <div>
                 <h4>{blurb.title}</h4>
                 {
