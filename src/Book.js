@@ -6,8 +6,38 @@ import Cookies from 'universal-cookie';
 import * as qs from 'query-string';
 
 /**********
+
 https://medium.com/@levvi/how-to-use-google-forms-as-a-free-email-service-for-your-custom-react-form-or-any-other-1aa837422a4
 https://github.com/llevvi/llevvi.github.io/blob/development/src/components/ContactBox/index.js
+
+action:
+https://docs.google.com/forms/u/0/d/e/1FAIpQLSfP3h3OMYzztYQuYS4NxPDo5XsLfH49cVNI_i8biLsse__jAQ/formResponse
+
+language:
+entry.801858234
+
+type:
+entry.1528636563
+
+from:
+entry.1516521361_day
+entry.1516521361_month
+entry.1516521361_year
+
+to:
+entry.1536514253_day
+entry.1536514253_month
+entry.1536514253_year
+
+name:
+entry.1984478491
+
+email:
+entry.1350212508
+
+telephone:
+entry.966320764
+
 /**********/
 
 const querystring = qs.parse(window.location.search);
@@ -19,16 +49,16 @@ class Book extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: '',
+      //value: '',
       language: 'en',
       booking: {
-      	from: new Date(),
-      	to: new Date(),
-      	name: '',
-      	email: '',
-      	telephone: '',
-      	type: '',
-      	language: ''
+        from: new Date(),
+        to: new Date(),
+        name: '',
+        email: '',
+        telephone: '',
+        type: '',
+        language: ''
       },
       copy: {
         languages: []
@@ -39,11 +69,15 @@ class Book extends React.Component {
   }
 
   handleChange(event) {
-    this.setState({value: event.target.value});
+    //this.setState({value: event.target.value});
+    this.setState(prevState => ({
+      language: prevState.language,
+      booking: prevState.booking,
+      copy: prevState.copy
+    }));
   }
 
   handleSubmit(event) {
-    alert('A name was submitted: ' + this.state.value);
     event.preventDefault();
   }
 
@@ -53,6 +87,7 @@ class Book extends React.Component {
     .then((copy) => {
       this.setState(prevState => ({
         language: prevState.language,
+        booking: prevState.booking,
         copy: copy
       }));
     })
@@ -63,12 +98,13 @@ class Book extends React.Component {
       <Container>
         <Nav />
         <Row style={{ paddingTop: '10px' }}>
-    	  <h2>make a booking</h2>
-    	  <form onSubmit={this.handleSubmit}>
-    	    <input type='email' name='email' value={this.state.email} onChange={this.handleChange} />
-    	    <textarea name='message' value={this.state.message} onChange={this.handleChange} />
-    	    <button type='submit'>Submit</button>
-    	  </form>
+        <h2>make a booking</h2>
+        <form onSubmit={this.handleSubmit}>
+          <input type='email' name='email' value={this.state.booking.email} onChange={this.handleChange} />
+          <input type='email' name='email' value={this.state.booking.telephone} onChange={this.handleChange} />
+          <textarea name='message' value={this.state.message} onChange={this.handleChange} />
+          <button type='submit'>Submit</button>
+        </form>
         </Row>
       </Container>
     );
