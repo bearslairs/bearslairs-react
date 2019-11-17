@@ -1,9 +1,14 @@
 import React from 'react'
+import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
+import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Nav from './Nav';
 import Cookies from 'universal-cookie';
 import * as qs from 'query-string';
+import 'react-dates/initialize';
+import { DateRangePicker } from 'react-dates';
+import 'react-dates/lib/css/_datepicker.css';
 
 /**********
 
@@ -52,8 +57,8 @@ class Book extends React.Component {
       //value: '',
       language: 'en',
       booking: {
-        from: new Date(),
-        to: new Date(),
+        from: null,
+        to: null,
         name: '',
         email: '',
         telephone: '',
@@ -70,10 +75,10 @@ class Book extends React.Component {
 
   handleChange(event) {
     //this.setState({value: event.target.value});
-    this.setState(prevState => ({
-      language: prevState.language,
-      booking: prevState.booking,
-      copy: prevState.copy
+    this.setState(state => ({
+      language: state.language,
+      booking: state.booking,
+      copy: state.copy
     }));
   }
 
@@ -85,9 +90,9 @@ class Book extends React.Component {
     fetch(CopyApi + '/' + this.state.language + '/book.json')
     .then(responseCopyApi => responseCopyApi.json())
     .then((copy) => {
-      this.setState(prevState => ({
-        language: prevState.language,
-        booking: prevState.booking,
+      this.setState(state => ({
+        language: state.language,
+        booking: state.booking,
         copy: copy
       }));
     })
@@ -98,13 +103,65 @@ class Book extends React.Component {
       <Container>
         <Nav />
         <Row style={{ paddingTop: '10px' }}>
-        <h2>make a booking</h2>
-        <form onSubmit={this.handleSubmit}>
-          <input type='email' name='email' value={this.state.booking.email} onChange={this.handleChange} />
-          <input type='email' name='email' value={this.state.booking.telephone} onChange={this.handleChange} />
-          <textarea name='message' value={this.state.message} onChange={this.handleChange} />
-          <button type='submit'>Submit</button>
-        </form>
+          <h2>make a booking</h2>
+        </Row>
+        <Row style={{ paddingTop: '10px' }}>
+
+          <Form>
+            <Form.Group controlId="name">
+              <Form.Label>name</Form.Label>
+              <Form.Control type="text" placeholder="full name" value={this.state.booking.telephone} onChange={this.handleChange} />
+            </Form.Group>
+            <Form.Group controlId="email">
+              <Form.Label>email</Form.Label>
+              <Form.Control type="email" placeholder="email" value={this.state.booking.email} onChange={this.handleChange} />
+              <Form.Text className="text-muted">
+                we'll never share your email with anyone else.
+              </Form.Text>
+            </Form.Group>
+            <Form.Group controlId="telephone">
+              <Form.Label>telephone</Form.Label>
+              <Form.Control type="text" placeholder="telephone number" value={this.state.booking.telephone} onChange={this.handleChange} />
+            </Form.Group>
+            <Form.Group controlId="formBasicPassword">
+              <Form.Label>password</Form.Label>
+              <Form.Control type="password" placeholder="Password" />
+            </Form.Group>
+            <Form.Group controlId="reservation">
+              <Form.Label>reservation dates</Form.Label>
+              <br />
+              <DateRangePicker
+                startDate={this.state.booking.from} // momentPropTypes.momentObj or null,
+                startDateId="your_unique_start_date_id" // PropTypes.string.isRequired,
+                endDate={this.state.booking.to} // momentPropTypes.momentObj or null,
+                endDateId="your_unique_end_date_id" // PropTypes.string.isRequired,
+                onDatesChange={({ startDate, endDate }) => this.setState({ startDate, endDate })} // PropTypes.func.isRequired,
+                focusedInput={this.state.focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
+                onFocusChange={focusedInput => this.setState({ focusedInput })} // PropTypes.func.isRequired,
+              />
+            </Form.Group>
+            <Form.Group controlId="formBasicCheckbox">
+              <Form.Label>i would like to book storage</Form.Label>
+              <Form.Check type="radio" label="in a small locker" />
+              <Form.Check type="radio" label="in a medium locker" />
+              <Form.Check type="radio" label="in a large locker" />
+              <Form.Check type="radio" label="for a bicycle" />
+              <Form.Check type="radio" label="for a motorcycle" />
+              <Form.Check type="radio" label="for a large motorcycle" />
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+          </Form>
+        </Row>
+        <Row>
+          <pre>
+            {
+              (window.location.hostname === 'localhost')
+                ? JSON.stringify(this.state, null, 2)
+                : ''
+            }
+          </pre>
         </Row>
       </Container>
     );
