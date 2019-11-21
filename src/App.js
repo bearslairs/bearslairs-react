@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { LinkContainer } from 'react-router-bootstrap'
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Card from 'react-bootstrap/Card';
@@ -53,9 +54,9 @@ class App extends Component {
         <Row style={{ paddingTop: '10px' }}>
           <Carousel>
             {
-              this.state.copy.carousel.map((carouselItem) => (
-                <Carousel.Item>
-                  <Image src={carouselItem.image.url} alt={carouselItem.image.alt} fluid rounded />
+              this.state.copy.carousel.map((carouselItem, carouselItemIndex) => (
+                <Carousel.Item key={carouselItemIndex}>
+                  <Image src={carouselItem.image.url} alt={carouselItem.image.alt} rounded="true" />
                   <Carousel.Caption>
                     <h3>{carouselItem.title}</h3>
                     <p>{carouselItem.description}</p>
@@ -67,12 +68,12 @@ class App extends Component {
         </Row>
         <Row style={{ paddingTop: '10px' }}>
           {
-            this.state.copy.blurbs.slice(0, 2).map((blurb) => (
-              <div>
+            this.state.copy.blurbs.slice(0, 2).map((blurb, blurbIndex) => (
+              <div key={blurbIndex}>
                 <h4>{blurb.title}</h4>
                 {
-                  blurb.copy.map((paragraph) => (
-                    <p>{paragraph}</p>
+                  blurb.copy.map((paragraph, paragraphIndex) => (
+                    <p key={paragraphIndex}>{paragraph}</p>
                   ))
                 }
               </div>
@@ -81,37 +82,42 @@ class App extends Component {
         </Row>
         <Row style={{ paddingTop: '10px' }}>
           {
-            this.state.copy.cards.slice(0, 3).map((card) => (
-              <Card style={{ width: '30%', marginRight: '10px' }}>
+            this.state.copy.cards.slice(0, 3).map((card, cardIndex) => (
+              <Card style={{ width: '30%', marginRight: '10px' }} key={cardIndex}>
                 <Card.Header as="h3">
                   {card.title}
-                  <Image src={card.icon.url} alt={card.icon.alt} fluid rounded style={{ marginRight: '10px' }} className="float-right" />
+                  <Image src={card.icon.url} alt={card.icon.alt} rounded="true" style={{ marginRight: '10px' }} className="float-right" />
                 </Card.Header>
-                <Card.Img variant="top" src={card.image.url} alt={card.image.alt} fluid rounded />
+                <Card.Img variant="top" src={card.image.url} alt={card.image.alt} rounded="true" />
                 <Card.Body>
                   <Card.Title>
                     {card.description.join(' ')}
                   </Card.Title>
                   <hr />
-                  <Card.Text>
-                    <ul>
-                      {
-                        card.features.map((feature) => (
-                          <li>
-                            {feature.text}
-                            <ul>
-                              {
-                                feature.details.map((detail) => (
-                                  <li>{detail}</li>
-                                ))
-                              }
-                            </ul>
-                          </li>
-                        ))
-                      }
-                    </ul>
-                    <Button variant="primary" className="float-right">{card.button.text}</Button>
-                  </Card.Text>
+
+                  <ul>
+                    {
+                      card.features.map((feature, featureIndex) => (
+                        <li key={featureIndex}>
+                          {feature.text}
+                          <ul>
+                            {
+                              feature.details.map((detail, detailIndex) => (
+                                <li key={detailIndex}>
+                                  {detail}
+                                </li>
+                              ))
+                            }
+                          </ul>
+                        </li>
+                      ))
+                    }
+                  </ul>
+                  <LinkContainer to={card.button.link}>
+                    <Button variant="primary" className="float-right">
+                      {card.button.text}
+                    </Button>
+                  </LinkContainer>
                 </Card.Body>
               </Card>
             ))
@@ -119,12 +125,14 @@ class App extends Component {
         </Row>
         <Row style={{ paddingTop: '10px' }}>
           {
-            this.state.copy.blurbs.slice(2, 4).map((blurb) => (
-              <div>
+            this.state.copy.blurbs.slice(2, 4).map((blurb, blurbIndex) => (
+              <div key={blurbIndex}>
                 <h4>{blurb.title}</h4>
                 {
-                  blurb.copy.map((paragraph) => (
-                    <p>{paragraph}</p>
+                  blurb.copy.map((paragraph, paragraphIndex) => (
+                    <p key={paragraphIndex}>
+                      {paragraph}
+                    </p>
                   ))
                 }
               </div>
@@ -133,37 +141,41 @@ class App extends Component {
         </Row>
         <Row style={{ paddingTop: '10px' }}>
           {
-            this.state.copy.cards.slice(3, 6).map((card) => (
-              <Card style={{ width: '30%', marginRight: '10px' }}>
+            this.state.copy.cards.slice(3, 6).map((card, cardIndex) => (
+              <Card style={{ width: '30%', marginRight: '10px' }} key={cardIndex}>
                 <Card.Header as="h3">
                   {card.title}
-                  <Image src={card.icon.url} alt={card.icon.alt} fluid rounded style={{ marginRight: '10px' }} className="float-right" />
+                  <Image src={card.icon.url} alt={card.icon.alt} rounded="true" style={{ marginRight: '10px' }} className="float-right" />
                 </Card.Header>
-                <Card.Img variant="top" src={card.image.url} alt={card.image.alt} fluid rounded />
+                <Card.Img variant="top" src={card.image.url} alt={card.image.alt} rounded="true" />
                 <Card.Body>
                   <Card.Title>
                     {card.description.join(' ')}
                   </Card.Title>
                   <hr />
-                  <Card.Text>
-                    <ul>
-                      {
-                        card.features.map((feature) => (
-                          <li>
-                            {feature.text}
-                            <ul>
-                              {
-                                feature.details.map((detail) => (
-                                  <li>{detail}</li>
-                                ))
-                              }
-                            </ul>
-                          </li>
-                        ))
-                      }
-                    </ul>
-                    <Button variant="primary" className="float-right">{card.button.text}</Button>
-                  </Card.Text>
+                  <ul>
+                    {
+                      card.features.map((feature, featureIndex) => (
+                        <li key={featureIndex}>
+                          {feature.text}
+                          <ul>
+                            {
+                              feature.details.map((detail, detailIndex) => (
+                                <li key={detailIndex}>
+                                  {detail}
+                                </li>
+                              ))
+                            }
+                          </ul>
+                        </li>
+                      ))
+                    }
+                  </ul>
+                  <LinkContainer to={card.button.link}>
+                    <Button variant="primary" className="float-right">
+                      {card.button.text}
+                    </Button>
+                  </LinkContainer>
                 </Card.Body>
               </Card>
             ))

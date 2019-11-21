@@ -57,7 +57,7 @@ class Nav extends Component {
         <span className="float-right text-muted">
           {
             this.state.copy.languages.map(lang => (
-              <a href={'?lang=' + lang} className="text-muted">{lang}</a>
+              <a key={lang} href={'?lang=' + lang} className="text-muted">{lang}</a>
             ))
           }
         </span>
