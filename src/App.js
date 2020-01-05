@@ -10,6 +10,7 @@ import './App.css';
 import Cookies from 'universal-cookie';
 import Nav from './Nav';
 import * as qs from 'query-string';
+import GoogleMapReact from 'google-map-react';
 
 const querystring = qs.parse(window.location.search);
 const cookies = new Cookies();
@@ -47,6 +48,7 @@ class App extends Component {
     })
     .catch(console.log);
   }
+
   render() {
     return (
       <Container>
@@ -180,6 +182,51 @@ class App extends Component {
               </Card>
             ))
           }
+        </Row>
+        <Row style={{ paddingTop: '10px' }}>
+          {
+            this.state.copy.blurbs.slice(4, 5).map((blurb, blurbIndex) => (
+              <div key={blurbIndex}>
+                <h4>{blurb.title}</h4>
+                {
+                  blurb.copy.map((paragraph, paragraphIndex) => (
+                    <p key={paragraphIndex}>
+                      {paragraph}
+                    </p>
+                  ))
+                }
+              </div>
+            ))
+          }
+        </Row>
+        <Row style={{ paddingTop: '10px' }}>
+          <div style={{ height: '40vh', width: '100%' }}>
+            <GoogleMapReact
+              bootstrapURLKeys={{ key: 'AIzaSyCn5OlY0IS0E7DPU-h8IgS2xPvgTmiVfHY' }}
+              defaultCenter={{ lat: 41.820582, lng: 23.478257 }}
+              defaultZoom={ 14 }
+              onGoogleApiLoaded={({map, maps}) => {
+                let marker = new maps.Marker({
+                  position: { lat: 41.820582, lng: 23.478257 },
+                  map,
+                  title: 'Bears Lairs, Bansko',
+                  description: 'secure, self-storage in bansko with access at your convenience',
+                  link: {
+                    url: 'https://www.google.com/maps/place/Bears+Lairs/@41.8223813,23.4681867,15z/data=!4m5!3m4!1s0x0:0xadd4ea4c0b9a3216!8m2!3d41.820631!4d23.478215',
+                    text: 'maps.google.com/Bears+Lairs'
+                  }
+                });
+                let infoWindow = new maps.InfoWindow({
+                  content: '<h4><img src="favicon-32x32.png" style="margin-right: 6px;" class="rounded-circle" />' + marker.title + '</h4><p>' + marker.description + '<br /><a href="' + marker.link.url + '">' + marker.link.text + '</a></p>'
+                });
+                infoWindow.open(map, marker);
+                marker.addListener('click', () => {
+                  map.setZoom(14);
+                  map.setCenter(marker.getPosition());
+                  infoWindow.open(map, marker);
+                });
+              }} />
+          </div>
         </Row>
         <footer className="clearfix" style={{ marginTop: '20px' }}>
           <p className="text-center text-muted">
