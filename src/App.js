@@ -202,7 +202,7 @@ class App extends Component {
         <Row style={{ paddingTop: '10px' }}>
           <div style={{ height: '40vh', width: '100%' }}>
             <GoogleMapReact
-              bootstrapURLKeys={{ key: 'AIzaSyCn5OlY0IS0E7DPU-h8IgS2xPvgTmiVfHY' }}
+              bootstrapURLKeys={{ key: 'AIzaSyCKw8by28pNI5tlimezyyjgtXz_Nvkq2-Y' }}
               defaultCenter={{ lat: 41.820582, lng: 23.478257 }}
               defaultZoom={ 14 }
               onGoogleApiLoaded={({map, maps}) => {
