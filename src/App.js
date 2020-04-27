@@ -1,11 +1,13 @@
 import React, { Component } from 'react'
 import { LinkContainer } from 'react-router-bootstrap'
 import Container from 'react-bootstrap/Container';
+import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Card from 'react-bootstrap/Card';
 import Image from 'react-bootstrap/Image';
 import Button from 'react-bootstrap/Button';
 import Carousel from 'react-bootstrap/Carousel';
+import Thermometer from 'react-thermometer-component'
 import './App.css';
 import Cookies from 'universal-cookie';
 import Nav from './Nav';
@@ -15,6 +17,7 @@ import GoogleMapReact from 'google-map-react';
 const querystring = qs.parse(window.location.search);
 const cookies = new Cookies();
 const CopyApi = 'https://raw.githubusercontent.com/bearslairs/bearslairs-data/master/copy';
+const UbiBotApi = 'https://api.ubibot.io/channels/13604?api_key=609210eb2306427a88d662d48ddb578d';
 const languages = ['bg', 'en', 'ru'];
 
 class App extends Component {
@@ -24,6 +27,14 @@ class App extends Component {
       carousel: [],
       blurbs: [],
       cards: []
+    },
+    temperature: {
+      value: 0,
+      created_at: '2020-01-01T00:00:01Z'
+    },
+    humidity: {
+      value: 0,
+      created_at: '2020-01-01T00:00:01Z'
     }
   };
 
@@ -45,6 +56,18 @@ class App extends Component {
         language: prevState.language,
         copy: copy
       }));
+    })
+    .catch(console.log);
+    fetch(UbiBotApi)
+    .then(responseUbiBotApi => responseUbiBotApi.json())
+    .then((container) => {
+      if (container.result === 'success') {
+        let lastValues = JSON.parse(container.channel.last_values);
+        this.setState(prevState => ({
+          temperature: lastValues.field1,
+          humidity: lastValues.field2
+        }));
+      }
     })
     .catch(console.log);
   }
@@ -81,6 +104,57 @@ class App extends Component {
               </div>
             ))
           }
+        </Row>
+        <Row style={{ padding: '20px' }}>
+          <Col>
+            <Thermometer
+              theme="dark"
+              value={(Math.round(this.state.temperature.value * 10) / 10)}
+              max={(this.state.temperature.value * 1.3)}
+              steps="3"
+              format="°C"
+              size="large"
+              height="200"
+            />
+          </Col>
+          <Col xs={10}>
+            <h4>real-time environment monitoring</h4>
+            <p>
+              we monitor temperature, humidity and light within the facility and publish those readings at <a href="https://space.ubibot.io/space/user/device/channel-id/13604">ubibot.io/bearslairs</a> so our customers can keep informed of the environmental conditions of their self-storage. the latest readings taken were:
+            </p>
+            <dl>
+              <dt>temperature</dt>
+              <dd>
+                {
+                  new Intl.DateTimeFormat("en-GB", {
+                    year: "numeric",
+                    month: "long",
+                    day: "2-digit",
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    second: 'numeric',
+                    timeZone: 'Europe/Sofia'
+                  }).format(new Date(this.state.temperature.created_at))
+                }:&nbsp;
+                <strong>{(Math.round(this.state.temperature.value * 10) / 10)}°C</strong>
+              </dd>
+              <dt>humidity</dt>
+              <dd>
+                {
+                  new Intl.DateTimeFormat("en-GB", {
+                    year: "numeric",
+                    month: "long",
+                    day: "2-digit",
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    second: 'numeric',
+                    timeZone: 'Europe/Sofia'
+                  }).format(new Date(this.state.humidity.created_at))
+                }:&nbsp;
+                <strong>{this.state.humidity.value}%</strong>
+              </dd>
+            </dl>
+          </Col>
         </Row>
         <Row style={{ paddingTop: '10px' }}>
           {
