@@ -29,7 +29,7 @@ class Nav extends Component {
       : languages.includes(cookies.get('lang')) // else if the cookies contain a lang, use that
         ? cookies.get('lang')
         : this.state.language; // fall back to a default
-    this.setState(prevState => ({ 
+    this.setState(prevState => ({
       language: language,
       copy: prevState.copy
     }));
@@ -48,7 +48,10 @@ class Nav extends Component {
     return (
       <header className="App-header clearfix">
         <LinkContainer to="/">
-          <h1 className="float-left">{this.state.copy.title}</h1>
+          <div>
+            <img src="favicon-32x32.png" alt="bears lairs logo" style={{marginRight: '6px'}} className="float-left rounded-circle" />
+            <h1 className="float-left">{this.state.copy.title}</h1>
+          </div>
         </LinkContainer>
         <h2 className="float-left text-muted">{this.state.copy.subtitle}</h2>
         <LinkContainer to="/book">
