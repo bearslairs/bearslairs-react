@@ -20,7 +20,9 @@ const CopyApi = 'https://raw.githubusercontent.com/bearslairs/bearslairs-data/ma
 const UbiBotApi = 'https://api.ubibot.io/channels/13604?api_key=609210eb2306427a88d662d48ddb578d';
 const languages = ['bg', 'en', 'ru'];
 const lairImages = ['/lair-baby.png', '/lair-mama.png', '/lair-papa.png'];
+const lairIcons = ['/lair-baby-icon.png', '/lair-mama-icon.png', '/lair-papa-icon.png'];
 const bikeImages = ['/bike-rack.png', '/bike-small.png', '/bike-large.png'];
+const bikeIcons = ['/bike-rack-icon.png', '/bike-small-icon.png', '/bike-large-icon.png'];
 
 class App extends Component {
   state = {
@@ -207,7 +209,9 @@ class App extends Component {
                 <Card.Header>
                   {card.title}
                 </Card.Header>
-                <Card.Img variant="top" src={lairImages[cardIndex]} alt={card.image.alt} rounded="true" />
+                <div style={{height: '200px', backgroundImage: 'url(' + lairImages[cardIndex] + ')'}}>
+                  <Image src={lairIcons[cardIndex]} alt={card.image.alt} style={{marginTop: '25px'}} />
+                </div>
                 <Card.Body>
                   <Card.Title>
                     {card.description.join(' ')}
@@ -284,7 +288,9 @@ class App extends Component {
                   <Card.Header>
                     {card.title}
                   </Card.Header>
-                  <Card.Img variant="top" src={bikeImages[cardIndex]} alt={card.image.alt} rounded="true" />
+                  <div style={{height: '200px', backgroundImage: 'url(' + bikeImages[cardIndex] + ')'}}>
+                    <Image src={bikeIcons[cardIndex]} alt={card.image.alt} style={{marginTop: '25px'}} />
+                  </div>
                   <Card.Body>
                     <Card.Title>
                       {card.description.join(' ')}
