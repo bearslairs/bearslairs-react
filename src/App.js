@@ -14,6 +14,7 @@ import Cookies from 'universal-cookie';
 import * as qs from 'query-string';
 import GoogleMapReact from 'google-map-react';
 
+const locationCoordinates = { lat: 41.820582, lng: 23.478257 };
 const querystring = qs.parse(window.location.search);
 const cookies = new Cookies();
 const CopyApi = 'https://raw.githubusercontent.com/bearslairs/bearslairs-data/master/copy';
@@ -40,6 +41,11 @@ class App extends Component {
       value: 0,
       created_at: '2020-01-01T00:00:01Z'
     }
+  };
+  anchors = {
+    about: React.createRef(),
+    lairs: React.createRef(),
+    map: React.createRef()
   };
 
   componentDidMount() {
@@ -86,9 +92,9 @@ class App extends Component {
       </Container>
       <Navbar id="container-nav">
         <Nav className="m-auto">
-          <Nav.Link href="#about">about</Nav.Link>
-          <Nav.Link href="#prices">prices</Nav.Link>
-          <Nav.Link href="#location">location</Nav.Link>
+          <Nav.Link onClick={() => window.scrollTo(0, this.anchors.about.current.offsetTop)}>about</Nav.Link>
+          <Nav.Link onClick={() => window.scrollTo(0, this.anchors.lairs.current.offsetTop)}>prices</Nav.Link>
+          <Nav.Link onClick={() => window.scrollTo(0, this.anchors.map.current.offsetTop)}>location</Nav.Link>
         </Nav>
       </Navbar>
       <Container id="container-header" fluid style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
@@ -153,7 +159,7 @@ class App extends Component {
           </Col>
         </Row>
       </Container>
-      <Container id="container-about" fluid>
+      <Container id="container-about" ref={this.anchors.about} fluid>
         {
           this.state.copy.blurbs.slice(0, 1).map((blurb, blurbIndex) => (
             <Container key={blurbIndex}>
@@ -197,7 +203,7 @@ class App extends Component {
           </Row>
         </Container>
       </Container>
-      <Container id="container-lair">
+      <Container id="container-lair" ref={this.anchors.lairs}>
         <h3>
           choose your lair
         </h3>
@@ -357,15 +363,16 @@ class App extends Component {
           ))
         }
       </Container>
-      <Container id="container-map" fluid>
+      <Container id="container-map" ref={this.anchors.map} fluid>
         <div style={{ height: '650px', width: '100%' }}>
           <GoogleMapReact
             bootstrapURLKeys={{ key: 'AIzaSyCKw8by28pNI5tlimezyyjgtXz_Nvkq2-Y' }}
-            defaultCenter={{ lat: 41.820582, lng: 23.478257 }}
+            yesIWantToUseGoogleMapApiInternals={true}
+            defaultCenter={locationCoordinates}
             defaultZoom={ 14 }
             onGoogleApiLoaded={({map, maps}) => {
               let marker = new maps.Marker({
-                position: { lat: 41.820582, lng: 23.478257 },
+                position: locationCoordinates,
                 map,
                 title: 'Bears Lairs, Bansko',
                 description: 'secure, self-storage in bansko with access at your convenience',
