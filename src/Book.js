@@ -1,6 +1,7 @@
 import React from 'react'
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
+import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Nav from './Nav';
 import Cookies from 'universal-cookie';
@@ -19,7 +20,28 @@ import {
   StripeProvider
 } from 'react-stripe-elements';
 import CheckoutForm from './CheckoutForm';
+import LockerAnimation from './LockerAnimation';
 
+const lockerGeometries = [
+  {
+    name: 'small',
+    width: 1,
+    depth: 2.5,
+    height: 2.3
+  },
+  {
+    name: 'medium',
+    width: 2,
+    depth: 2.5,
+    height: 2.3
+  },
+  {
+    name: 'large',
+    width: 3,
+    depth: 2.5,
+    height: 2.3
+  }
+];
 const querystring = qs.parse(window.location.search);
 const cookies = new Cookies();
 const CopyApi = 'https://raw.githubusercontent.com/bearslairs/bearslairs-data/master/copy';
@@ -48,6 +70,7 @@ class Book extends React.Component {
     endDate.setHours(12,0,0,0);
     endDate.setMonth(startDate.getMonth() + 3);
     this.state = {
+      stripe: null,
       reservations: [],
       language: language,
       reservation: {
@@ -61,11 +84,13 @@ class Book extends React.Component {
       },
       copy: {
         languages: []
-      }
+      },
+      lockerGeometrySelection: null
     };
     this.handleChange = this.handleChange.bind(this);
     this.displayReservations = this.displayReservations.bind(this);
     this.addReservation = this.addReservation.bind(this);
+    this.lockerSelectHandler = this.lockerSelectHandler.bind(this);
   }
   handleChange(event) {
     const target = event.target;
@@ -75,6 +100,13 @@ class Book extends React.Component {
     });
   }
   componentDidMount() {
+    if (window.Stripe) {
+      this.setState({stripe: window.Stripe('pk_test_kSrcl4f2BEKQTkQCIuDih41I000nfCqc5I')});
+    } else {
+      document.querySelector('#stripe-js').addEventListener('load', () => {
+        this.setState({stripe: window.Stripe('pk_test_kSrcl4f2BEKQTkQCIuDih41I000nfCqc5I')});
+      });
+    }
     fetch(CopyApi + '/' + this.state.language + '/book.json')
       .then(responseCopyApi => responseCopyApi.json())
       .then((copy) => {
@@ -117,9 +149,42 @@ class Book extends React.Component {
       .catch(console.error);
   }
 
+  lockerSelectHandler(name) {
+    this.setState(state => ({
+      lockerGeometrySelection: (state.lockerGeometrySelection === name) ? null : name
+    }));
+    //this.forceUpdate();
+  }
+
   render() {
     return (
       <Container>
+        <Row style={{ height: '300px' }}>
+          {
+            lockerGeometries.map((lockerGeometry, lgI) => (
+              <Col key={lgI}>
+                <LockerAnimation geometry={lockerGeometry} color={{ default: 0x300b0b, active: 0x7bb32c, hover: 'hotpink'}} onClick={() => this.lockerSelectHandler(lockerGeometry.name)} active={(this.state.lockerGeometrySelection === lockerGeometry.name)} />
+              </Col>
+            ))
+          }
+        </Row>
+        <Row>
+          {
+            lockerGeometries.map((lockerGeometry, lgI) => (
+              <Col key={lgI} style={{ textAlign: 'center' }}>
+                <p style={{color: ((this.state.lockerGeometrySelection === lockerGeometry.name) ? 'hotpink' : '#300b0b')}}>
+                  <strong>{lockerGeometry.name}</strong>
+                  <br />
+                  floor space (area in square metres): {Math.round(lockerGeometry.width * lockerGeometry.depth * 10) / 10} m<sup>2</sup>
+                  <br />
+                  air space (volume in cubic metres): {Math.round(lockerGeometry.width * lockerGeometry.depth * lockerGeometry.height * 10) / 10} m<sup>3</sup>
+                  <br />
+                  width: {Math.round(lockerGeometry.width * 100)} cm, height: {Math.round(lockerGeometry.height * 100)} cm, depth: {Math.round(lockerGeometry.depth * 100)} cm
+                </p>
+              </Col>
+            ))
+          }
+        </Row>
         <Nav />
         <Row style={{ paddingTop: '10px' }}>
           <h2>make a reservation</h2>
@@ -200,7 +265,7 @@ class Book extends React.Component {
                 onChange={() => this.setState(state => {state.reservation.locker = 'large-motorcycle'; return state;})}
                 checked={this.state.reservation.locker === 'large-motorcycle'} />
             </Form.Group>
-            <StripeProvider apiKey="pk_test_kSrcl4f2BEKQTkQCIuDih41I000nfCqc5I">
+            <StripeProvider stripe={this.state.stripe}>
               <Elements>
                 <CheckoutForm />
               </Elements>

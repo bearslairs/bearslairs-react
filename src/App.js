@@ -220,7 +220,7 @@ class App extends Component {
                   <ul style={{lmargin: 0, padding: 0}}>
                     {
                       card.features.map((feature, featureIndex) => (
-                        <li key={featureIndex} style={{fontWeight: 600, margin: 0, padding: 0}}>
+                        <li key={featureIndex} style={{listStyleType: 'none', fontWeight: 600, margin: 0, padding: 0}}>
                           {feature.text}
                           <ul style={{lmargin: 0, padding: 0}}>
                             {
@@ -299,7 +299,7 @@ class App extends Component {
                     <ul style={{lmargin: 0, padding: 0}}>
                       {
                         card.features.map((feature, featureIndex) => (
-                          <li key={featureIndex} style={{fontWeight: 600, margin: 0, padding: 0}}>
+                          <li key={featureIndex} style={{listStyleType: 'none', fontWeight: 600, margin: 0, padding: 0}}>
                             {feature.text}
                             <ul style={{margin: 0, padding: 0}}>
                               {
