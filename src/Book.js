@@ -201,6 +201,7 @@ class Book extends Component {
     this.getDurationInMonths = this.getDurationInMonths.bind(this);
     this.getPriceBand = this.getPriceBand.bind(this);
     this.getTotalPrice = this.getTotalPrice.bind(this);
+    this.getInstallments = this.getInstallments.bind(this);
   }
 
   handleChange(event) {
@@ -310,7 +311,27 @@ class Book extends Component {
         break;
     }
     let durationInMonths = this.getDurationInMonths(this.state.reservation.from, this.state.reservation.to);
-    return (durationInMonths * monthlyPrice);
+    return (durationInMonths * monthlyPrice).toFixed(2);
+  }
+
+  getInstallments() {
+    let durationInMonths = this.getDurationInMonths(this.state.reservation.from, this.state.reservation.to);
+    return [...Array(durationInMonths).keys()].map(installmentIndex => ({
+      date: (new Date((new Date(this.state.reservation.from)).setMonth((new Date(this.state.reservation.from)).getMonth() + installmentIndex))),
+      amount: (
+        (installmentIndex < 2)
+          ? this.state.selectedStorageSpace.price.month.toFixed(2)
+          : (installmentIndex === 2)
+            ? (this.state.selectedStorageSpace.price.quarter - (this.state.selectedStorageSpace.price.month * 2)).toFixed(2)
+            : (installmentIndex < 5)
+              ? (this.state.selectedStorageSpace.price.quarter / 3).toFixed(2)
+              : (installmentIndex === 5)
+                ? (this.state.selectedStorageSpace.price.biannual - ((this.state.selectedStorageSpace.price.quarter / 3) * 5)).toFixed(2)
+                : (installmentIndex < 12)
+                  ? (this.state.selectedStorageSpace.price.biannual / 6).toFixed(2)
+                  : (this.state.selectedStorageSpace.price.annual / 12).toFixed(2)
+      )
+    }));
   }
 
   render() {
@@ -325,31 +346,41 @@ class Book extends Component {
                 <Tab eventKey={storageCategory} title={storageCategory}>
                   <Row style={{ height: '300px' }}>
                     {
-                      storageSpaces.filter(lg => lg.category === storageCategory).map((geometry, lgI) => (
+                      storageSpaces.filter(lg => lg.category === storageCategory).map((storageSpace, lgI) => (
                         <Col key={lgI}>
                           <LockerAnimation
-                            geometry={geometry}
+                            geometry={storageSpace}
                             color={{ default: 0x300b0b, active: 0x7bb32c, hover: 'hotpink'}}
-                            onClick={() => this.lockerSelectHandler(geometry.name)}
-                            active={((this.state.selectedStorageSpace) && (this.state.selectedStorageSpace.name === geometry.name))} />
+                            onClick={() => this.lockerSelectHandler(storageSpace.name)}
+                            active={((this.state.selectedStorageSpace) && (this.state.selectedStorageSpace.name === storageSpace.name))} />
                         </Col>
                       ))
                     }
                   </Row>
                   <Row>
                     {
-                      storageSpaces.filter(lg => lg.category === storageCategory).map((geometry, lgI) => (
+                      storageSpaces.filter(lg => lg.category === storageCategory).map((storageSpace, lgI) => (
                         <Col key={lgI} style={{ textAlign: 'center' }}>
-                          <p style={{color: (((this.state.selectedStorageSpace) && (this.state.selectedStorageSpace.name === geometry.name)) ? 'hotpink' : '#300b0b')}}>
-                            <strong>{geometry.name}</strong>
+                          <p style={{color: (((this.state.selectedStorageSpace) && (this.state.selectedStorageSpace.name === storageSpace.name)) ? 'hotpink' : '#300b0b')}}>
+                            <strong>{storageSpace.name}</strong>
                             <br />
-                            floor space (area in square metres): <strong>{Math.round(geometry.size.width * geometry.size.depth * 10) / 10} m<sup>2</sup></strong>
+                            floor space (area in square metres): <strong>{Math.round(storageSpace.size.width * storageSpace.size.depth * 10) / 10} m<sup>2</sup></strong>
                             <br />
-                            air space (volume in cubic metres): <strong>{Math.round(geometry.size.width * geometry.size.depth * geometry.size.height * 10) / 10} m<sup>3</sup></strong>
+                            air space (volume in cubic metres): <strong>{Math.round(storageSpace.size.width * storageSpace.size.depth * storageSpace.size.height * 10) / 10} m<sup>3</sup></strong>
                             <br />
-                            width: <strong>{Math.round(geometry.size.width * 100)} cm</strong>,
-                            height: <strong>{Math.round(geometry.size.height * 100)} cm</strong>,
-                            depth: <strong>{Math.round(geometry.size.depth * 100)} cm</strong>
+                            width: <strong>{Math.round(storageSpace.size.width * 100)} cm</strong>,
+                            height: <strong>{Math.round(storageSpace.size.height * 100)} cm</strong>,
+                            depth: <strong>{Math.round(storageSpace.size.depth * 100)} cm</strong>
+                            <br />
+                            <strong>price</strong>
+                            <br />
+                            1 - 2 months: <strong>bgn {storageSpace.price.month.toFixed(2)} lev</strong> per month,
+                            <br />
+                            3 - 5 months: <strong>bgn {(storageSpace.price.quarter / 3).toFixed(2)} lev</strong> per month,
+                            <br />
+                            6 - 11 months: <strong>bgn {(storageSpace.price.biannual / 6).toFixed(2)} lev</strong> per month,
+                            <br />
+                            12 or more months: <strong>bgn {(storageSpace.price.annual / 12).toFixed(2)} lev</strong> per month
                           </p>
                         </Col>
                       ))
@@ -441,12 +472,12 @@ class Book extends Component {
                             } lev</strong>.
                         </p>
                         <p>
-                          this will be billed in three installments, as follows:
+                          this will be billed in monthly installments, as follows:
                         </p>
                         <dl>
                           <dt>
                             {
-                              [...Array(3).keys()].map(installmentIndex => (
+                              this.getInstallments().map(installment => (
                                 <>
                                   <dt>
                                     {
@@ -455,15 +486,11 @@ class Book extends Component {
                                           year: 'numeric',
                                           month: 'long',
                                           day: '2-digit'
-                                        }).format(new Date((new Date(this.state.reservation.from)).setMonth((new Date(this.state.reservation.from)).getMonth() + installmentIndex)))
+                                        }).format(installment.date)
                                     }:
                                   </dt>
                                   <dd>
-                                    {
-                                      (installmentIndex < 2)
-                                        ? <span>bgn {this.state.selectedStorageSpace.price.month} lev</span>
-                                        : <span>bgn {(this.state.selectedStorageSpace.price.quarter - (this.state.selectedStorageSpace.price.month * 2))} lev</span>
-                                    }
+                                    {installment.amount}
                                   </dd>
                                 </>
                               ))
