@@ -9,6 +9,7 @@
     "bootstrap": "^4.5.0",
     "browserify-css": "^0.15.0",
     "google-map-react": "^1.1.7",
+    "js-yaml": "^3.14.0",
     "moment": "^2.26.0",
     "mongodb-stitch-browser-sdk": "^4.8.0",
     "query-string": "^6.13.1",
