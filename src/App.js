@@ -5,14 +5,14 @@ import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Image from 'react-bootstrap/Image';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
 import Row from 'react-bootstrap/Row';
 import Thermometer from 'react-thermometer-component'
 import Cookies from 'universal-cookie';
-//import Nav from './Nav';
 import * as qs from 'query-string';
 import GoogleMapReact from 'google-map-react';
+
+import Logo from './Logo';
+import Navigation from './Navigation';
 
 const querystring = qs.parse(window.location.search);
 const cookies = new Cookies();
@@ -79,18 +79,8 @@ class App extends Component {
   render() {
     return (
     <>
-      <Container id="container-logo">
-        <Row>
-          <Image src={'/logo.png'} className="m-auto" />
-        </Row>
-      </Container>
-      <Navbar id="container-nav">
-        <Nav className="m-auto">
-          <Nav.Link href="#about">about</Nav.Link>
-          <Nav.Link href="#prices">prices</Nav.Link>
-          <Nav.Link href="#location">location</Nav.Link>
-        </Nav>
-      </Navbar>
+      <Logo language={this.state.language} />
+      <Navigation language={this.state.language} />
       <Container id="container-header" fluid style={{display: "flex", alignItems: "center", justifyContent: "center"}}>
         <h2>
           secure self storage in bansko<br />

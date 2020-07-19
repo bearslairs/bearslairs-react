@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { Component } from 'react';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import Nav from './Nav';
+import Tab from 'react-bootstrap/Tab';
+import Tabs from 'react-bootstrap/Tabs';
 import Cookies from 'universal-cookie';
 import * as qs from 'query-string';
 import 'react-dates/initialize';
@@ -22,26 +23,132 @@ import {
 import CheckoutForm from './CheckoutForm';
 import LockerAnimation from './LockerAnimation';
 
-const lockerGeometries = [
+import Logo from './Logo';
+import Navigation from './Navigation';
+
+const storageSpaces = [
   {
+    category: 'bike storage space',
+    name: 'bicycle/ebike',
+    size: {
+      width: 0.6,
+      depth: 2,
+      height: 1.1
+    },
+    price: {
+      month: 20,
+      quarter: 51,
+      biannual: 81,
+      annual: 120
+    }
+  },
+  {
+    category: 'bike storage space',
+    name: 'enduro / small moto',
+    size: {
+      width: 1,
+      depth: 2,
+      height: 1.1
+    },
+    price: {
+      month: 60,
+      quarter: 150,
+      biannual: 240,
+      annual: 360
+    }
+  },
+  {
+    category: 'bike storage space',
+    name: 'large motorcycle',
+    size: {
+      width: 1,
+      depth: 2.5,
+      height: 1.1
+    },
+    price: {
+      month: 80,
+      quarter: 200,
+      biannual: 320,
+      annual: 480
+    }
+  },
+  {
+    category: 'baby bear locker',
+    name: 'ski/board, boots',
+    size: {
+      width: 0.5,
+      depth: 0.5,
+      height: 2.3
+    },
+    price: {
+      month: 30,
+      quarter: 75,
+      biannual: 120,
+      annual: 180
+    }
+  },
+  {
+    category: 'baby bear locker',
+    name: 'luggage',
+    size: {
+      width: 1,
+      depth: 1,
+      height: 1.1
+    },
+    price: {
+      month: 30,
+      quarter: 75,
+      biannual: 120,
+      annual: 180
+    }
+  },
+  {
+    category: 'mama bear locker',
     name: 'small',
-    width: 1,
-    depth: 2.5,
-    height: 2.3
+    size: {
+      width: 1,
+      depth: 2.5,
+      height: 2.3
+    },
+    price: {
+      month: 50,
+      quarter: 125,
+      biannual: 200,
+      annual: 300
+    }
   },
   {
+    category: 'mama bear locker',
     name: 'medium',
-    width: 2,
-    depth: 2.5,
-    height: 2.3
+    size: {
+      width: 2,
+      depth: 2.5,
+      height: 2.3
+    },
+    price: {
+      month: 100,
+      quarter: 250,
+      biannual: 400,
+      annual: 600
+    }
   },
   {
+    category: 'papa bear locker',
     name: 'large',
-    width: 3,
-    depth: 2.5,
-    height: 2.3
+    size: {
+      width: 2.7,
+      depth: 2.5,
+      height: 2.3
+    },
+    price: {
+      month: 240,
+      quarter: 600,
+      biannual: 960,
+      annual: 1440
+    }
   }
 ];
+const storageCategories = storageSpaces.map(lg => lg.category).filter((v, i, a) => a.indexOf(v) === i);
 const querystring = qs.parse(window.location.search);
 const cookies = new Cookies();
 const CopyApi = 'https://raw.githubusercontent.com/bearslairs/bearslairs-data/master/copy';
@@ -49,9 +156,9 @@ const languages = ['bg', 'en', 'ru'];
 const lockers = ['small', 'medium', 'large', 'bicycle', 'motorcycle', 'large-motorcycle'];
 const client = Stitch.initializeDefaultAppClient('bearslairsstitch-pkblb');
 const serviceClient = client.getServiceClient(RemoteMongoClient.factory, 'mongodb-atlas');
-//const stripe = Stripe('pk_test_kSrcl4f2BEKQTkQCIuDih41I000nfCqc5I');
+//const stripe = Stripe('pk_test_kSrcl4f2BEKQTkQCIuDih41I0nfCqc5I');
 
-class Book extends React.Component {
+class Book extends Component {
   constructor(props, context) {
     super(props, context);
     let language = languages.includes(querystring.lang) // if the querystring lang is set, use that
@@ -85,13 +192,17 @@ class Book extends React.Component {
       copy: {
         languages: []
       },
-      lockerGeometrySelection: null
+      selectedStorageSpace: null
     };
     this.handleChange = this.handleChange.bind(this);
     this.displayReservations = this.displayReservations.bind(this);
     this.addReservation = this.addReservation.bind(this);
     this.lockerSelectHandler = this.lockerSelectHandler.bind(this);
+    this.getDurationInMonths = this.getDurationInMonths.bind(this);
+    this.getPriceBand = this.getPriceBand.bind(this);
+    this.getTotalPrice = this.getTotalPrice.bind(this);
   }
+
   handleChange(event) {
     const target = event.target;
     this.setState(state => {
@@ -99,12 +210,13 @@ class Book extends React.Component {
       return state;
     });
   }
+
   componentDidMount() {
     if (window.Stripe) {
-      this.setState({stripe: window.Stripe('pk_test_kSrcl4f2BEKQTkQCIuDih41I000nfCqc5I')});
+      this.setState({stripe: window.Stripe('pk_test_kSrcl4f2BEKQTkQCIuDih41I0nfCqc5I')});
     } else {
       document.querySelector('#stripe-js').addEventListener('load', () => {
-        this.setState({stripe: window.Stripe('pk_test_kSrcl4f2BEKQTkQCIuDih41I000nfCqc5I')});
+        this.setState({stripe: window.Stripe('pk_test_kSrcl4f2BEKQTkQCIuDih41I0nfCqc5I')});
       });
     }
     fetch(CopyApi + '/' + this.state.language + '/book.json')
@@ -124,7 +236,7 @@ class Book extends React.Component {
   displayReservations() {
     this.db
       .collection('reservations')
-      .find({}, { limit: 1000 })
+      .find({}, { limit: 10 })
       .asArray()
       .then(reservations => { this.setState({reservations}); });
   }
@@ -150,138 +262,238 @@ class Book extends React.Component {
   }
 
   lockerSelectHandler(name) {
-    this.setState(state => ({
-      lockerGeometrySelection: (state.lockerGeometrySelection === name) ? null : name
-    }));
+    let selectedStorageSpace = storageSpaces.find(storageSpace => storageSpace.name === name);
+    if (selectedStorageSpace) {
+      this.setState(state => ({
+        selectedStorageSpace: ((state.selectedStorageSpace) && (state.selectedStorageSpace.name === name)) ? null : selectedStorageSpace
+      }));
+    }
     //this.forceUpdate();
+  }
+
+  getDurationInMonths() {
+    let fromDate = (new Date (this.state.reservation.from));
+    let toDate = (new Date (this.state.reservation.to));
+    let months = (toDate.getFullYear() - fromDate.getFullYear()) * 12;
+    months -= fromDate.getMonth();
+    months += toDate.getMonth();
+    return months <= 0 ? 0 : months;
+  }
+
+  getPriceBand() {
+    let durationInMonths = this.getDurationInMonths();
+    if (durationInMonths < 3) {
+      return 'month';
+    } else if (durationInMonths < 6) {
+      return 'quarter';
+    } else if (durationInMonths < 12) {
+      return 'biannual';
+    }
+    return 'annual';
+  }
+
+  getTotalPrice() {
+    let priceBand = this.getPriceBand();
+    let monthlyPrice;
+    switch (priceBand) {
+      case 'month':
+        monthlyPrice = this.state.selectedStorageSpace.price[this.getPriceBand()];
+        break;
+      case 'quarter':
+        monthlyPrice = (this.state.selectedStorageSpace.price[this.getPriceBand()] / 3);
+        break;
+      case 'biannual':
+        monthlyPrice = (this.state.selectedStorageSpace.price[this.getPriceBand()] / 6);
+        break;
+      default:
+        monthlyPrice = (this.state.selectedStorageSpace.price[this.getPriceBand()] / 12);
+        break;
+    }
+    let durationInMonths = this.getDurationInMonths(this.state.reservation.from, this.state.reservation.to);
+    return (durationInMonths * monthlyPrice);
   }
 
   render() {
     return (
-      <Container>
-        <Row style={{ height: '300px' }}>
+      <>
+        <Logo language={this.state.language} />
+        <Navigation language={this.state.language} />
+        <Container>
+          <Tabs defaultActiveKey={storageCategories[0]}>
+            {
+              storageCategories.map(storageCategory => (
+                <Tab eventKey={storageCategory} title={storageCategory}>
+                  <Row style={{ height: '300px' }}>
+                    {
+                      storageSpaces.filter(lg => lg.category === storageCategory).map((geometry, lgI) => (
+                        <Col key={lgI}>
+                          <LockerAnimation
+                            geometry={geometry}
+                            color={{ default: 0x300b0b, active: 0x7bb32c, hover: 'hotpink'}}
+                            onClick={() => this.lockerSelectHandler(geometry.name)}
+                            active={((this.state.selectedStorageSpace) && (this.state.selectedStorageSpace.name === geometry.name))} />
+                        </Col>
+                      ))
+                    }
+                  </Row>
+                  <Row>
+                    {
+                      storageSpaces.filter(lg => lg.category === storageCategory).map((geometry, lgI) => (
+                        <Col key={lgI} style={{ textAlign: 'center' }}>
+                          <p style={{color: (((this.state.selectedStorageSpace) && (this.state.selectedStorageSpace.name === geometry.name)) ? 'hotpink' : '#300b0b')}}>
+                            <strong>{geometry.name}</strong>
+                            <br />
+                            floor space (area in square metres): <strong>{Math.round(geometry.size.width * geometry.size.depth * 10) / 10} m<sup>2</sup></strong>
+                            <br />
+                            air space (volume in cubic metres): <strong>{Math.round(geometry.size.width * geometry.size.depth * geometry.size.height * 10) / 10} m<sup>3</sup></strong>
+                            <br />
+                            width: <strong>{Math.round(geometry.size.width * 100)} cm</strong>,
+                            height: <strong>{Math.round(geometry.size.height * 100)} cm</strong>,
+                            depth: <strong>{Math.round(geometry.size.depth * 100)} cm</strong>
+                          </p>
+                        </Col>
+                      ))
+                    }
+                  </Row>
+                </Tab>
+              ))
+            }
+          </Tabs>
+          <Row style={{ paddingTop: '10px' }}>
+            <h2>make a reservation</h2>
+          </Row>
+          <Row style={{ paddingTop: '10px' }}>
+            <Form onSubmit={this.addReservation}>
+              <Form.Group controlId="name">
+                <Form.Label>name</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="full name"
+                  value={this.state.reservation.name}
+                  onChange={this.handleChange} />
+              </Form.Group>
+              <Form.Group controlId="email">
+                <Form.Label>email</Form.Label>
+                <Form.Control
+                  type="email"
+                  placeholder="email"
+                  value={this.state.reservation.email}
+                  onChange={this.handleChange} />
+                <Form.Text className="text-muted">
+                  we'll never share your email with anyone else.
+                </Form.Text>
+              </Form.Group>
+              <Form.Group controlId="telephone">
+                <Form.Label>telephone</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="telephone number"
+                  value={this.state.reservation.telephone}
+                  onChange={this.handleChange} />
+              </Form.Group>
+              <Form.Group controlId="fromto">
+                <Form.Label>reservation dates</Form.Label>
+                <br />
+                <DateRangePicker
+                  startDate={moment(this.state.reservation.from)}
+                  startDateId='reservation_from'
+                  endDate={moment(this.state.reservation.to)}
+                  endDateId='reservation_to'
+                  onDatesChange={({ startDate, endDate }) => this.setState(state => { state.reservation.from = startDate.toISOString(); state.reservation.to = endDate.toISOString(); return state; })}
+                  focusedInput={this.state.focusedInput}
+                  onFocusChange={focusedInput => this.setState({ focusedInput })}
+                />
+              </Form.Group>
+              <StripeProvider stripe={this.state.stripe}>
+                <Elements>
+                  <CheckoutForm />
+                </Elements>
+              </StripeProvider>
+            </Form>
+          </Row>
+          <Tabs defaultActiveKey="03-month">
+            <Tab eventKey="01-month" title="monthly">
+            </Tab>
+            <Tab eventKey="03-month" title="3 monthly">
+              {
+                (this.state.selectedStorageSpace)
+                  ? (
+                      <>
+                        <p>
+                          the total price for {
+                            this.getDurationInMonths()
+                          } months storage space between <strong>{
+                            new Intl.DateTimeFormat(
+                              'en-GB', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: '2-digit'
+                              }).format(new Date(this.state.reservation.from))
+                            }</strong> and <strong>{
+                            new Intl.DateTimeFormat(
+                              'en-GB', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: '2-digit'
+                              }).format(new Date(this.state.reservation.to))
+                            }</strong> is: <strong>bgn {
+                              this.getTotalPrice()
+                            } lev</strong>.
+                        </p>
+                        <p>
+                          this will be billed in three installments, as follows:
+                        </p>
+                        <dl>
+                          <dt>
+                            {
+                              [...Array(3).keys()].map(installmentIndex => (
+                                <>
+                                  <dt>
+                                    {
+                                      new Intl.DateTimeFormat(
+                                        'en-GB', {
+                                          year: 'numeric',
+                                          month: 'long',
+                                          day: '2-digit'
+                                        }).format(new Date((new Date(this.state.reservation.from)).setMonth((new Date(this.state.reservation.from)).getMonth() + installmentIndex)))
+                                    }:
+                                  </dt>
+                                  <dd>
+                                    {
+                                      (installmentIndex < 2)
+                                        ? <span>bgn {this.state.selectedStorageSpace.price.month} lev</span>
+                                        : <span>bgn {(this.state.selectedStorageSpace.price.quarter - (this.state.selectedStorageSpace.price.month * 2))} lev</span>
+                                    }
+                                  </dd>
+                                </>
+                              ))
+                            }
+                          </dt>
+                        </dl>
+                      </>
+                    )
+                  : ('')
+              }
+            </Tab>
+            <Tab eventKey="06-month" title="6 monthly">
+            </Tab>
+            <Tab eventKey="12-month" title="yearly">
+            </Tab>
+          </Tabs>
           {
-            lockerGeometries.map((lockerGeometry, lgI) => (
-              <Col key={lgI}>
-                <LockerAnimation geometry={lockerGeometry} color={{ default: 0x300b0b, active: 0x7bb32c, hover: 'hotpink'}} onClick={() => this.lockerSelectHandler(lockerGeometry.name)} active={(this.state.lockerGeometrySelection === lockerGeometry.name)} />
-              </Col>
-            ))
+            /*
+            (window.location.hostname === 'localhost') ?
+            <Row>
+              <pre>
+                {JSON.stringify(this.state, null, 2)}
+              </pre>
+            </Row> : null
+            */
           }
-        </Row>
-        <Row>
-          {
-            lockerGeometries.map((lockerGeometry, lgI) => (
-              <Col key={lgI} style={{ textAlign: 'center' }}>
-                <p style={{color: ((this.state.lockerGeometrySelection === lockerGeometry.name) ? 'hotpink' : '#300b0b')}}>
-                  <strong>{lockerGeometry.name}</strong>
-                  <br />
-                  floor space (area in square metres): {Math.round(lockerGeometry.width * lockerGeometry.depth * 10) / 10} m<sup>2</sup>
-                  <br />
-                  air space (volume in cubic metres): {Math.round(lockerGeometry.width * lockerGeometry.depth * lockerGeometry.height * 10) / 10} m<sup>3</sup>
-                  <br />
-                  width: {Math.round(lockerGeometry.width * 100)} cm, height: {Math.round(lockerGeometry.height * 100)} cm, depth: {Math.round(lockerGeometry.depth * 100)} cm
-                </p>
-              </Col>
-            ))
-          }
-        </Row>
-        <Nav />
-        <Row style={{ paddingTop: '10px' }}>
-          <h2>make a reservation</h2>
-        </Row>
-        <Row style={{ paddingTop: '10px' }}>
-
-          <Form onSubmit={this.addReservation}>
-            <Form.Group controlId="name">
-              <Form.Label>name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="full name"
-                value={this.state.reservation.name}
-                onChange={this.handleChange} />
-            </Form.Group>
-            <Form.Group controlId="email">
-              <Form.Label>email</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="email"
-                value={this.state.reservation.email}
-                onChange={this.handleChange} />
-              <Form.Text className="text-muted">
-                we'll never share your email with anyone else.
-              </Form.Text>
-            </Form.Group>
-            <Form.Group controlId="telephone">
-              <Form.Label>telephone</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="telephone number"
-                value={this.state.reservation.telephone}
-                onChange={this.handleChange} />
-            </Form.Group>
-            <Form.Group controlId="fromto">
-              <Form.Label>reservation dates</Form.Label>
-              <br />
-              <DateRangePicker
-                startDate={moment(this.state.reservation.from)}
-                startDateId='reservation_from'
-                endDate={moment(this.state.reservation.to)}
-                endDateId='reservation_to'
-                onDatesChange={({ startDate, endDate }) => this.setState(state => { state.reservation.from = startDate.toISOString(); state.reservation.to = endDate.toISOString(); return state; })}
-                focusedInput={this.state.focusedInput}
-                onFocusChange={focusedInput => this.setState({ focusedInput })}
-              />
-            </Form.Group>
-            <Form.Group controlId="locker">
-              <Form.Label>i would like to book storage</Form.Label>
-              <Form.Check
-                type="radio"
-                label="in a small locker"
-                onChange={() => this.setState(state => {state.reservation.locker = 'small'; return state;})}
-                checked={this.state.reservation.locker === 'small'} />
-              <Form.Check
-                type="radio"
-                label="in a medium locker"
-                onChange={() => this.setState(state => {state.reservation.locker = 'medium'; return state;})}
-                checked={this.state.reservation.locker === 'medium'} />
-              <Form.Check
-                type="radio"
-                label="in a large locker"
-                onChange={() => this.setState(state => {state.reservation.locker = 'large'; return state;})}
-                checked={this.state.reservation.locker === 'large'} />
-              <Form.Check
-                type="radio"
-                label="for a bicycle"
-                onChange={() => this.setState(state => {state.reservation.locker = 'bicycle'; return state;})}
-                checked={this.state.reservation.locker === 'bicycle'} />
-              <Form.Check
-                type="radio"
-                label="for a motorcycle"
-                onChange={() => this.setState(state => {state.reservation.locker = 'motorcycle'; return state;})}
-                checked={this.state.reservation.locker === 'motorcycle'} />
-              <Form.Check
-                type="radio"
-                label="for a large motorcycle"
-                onChange={() => this.setState(state => {state.reservation.locker = 'large-motorcycle'; return state;})}
-                checked={this.state.reservation.locker === 'large-motorcycle'} />
-            </Form.Group>
-            <StripeProvider stripe={this.state.stripe}>
-              <Elements>
-                <CheckoutForm />
-              </Elements>
-            </StripeProvider>
-          </Form>
-        </Row>
-        {
-          (window.location.hostname === 'localhost') ?
-          <Row>
-            <pre>
-              {JSON.stringify(this.state, null, 2)}
-            </pre>
-          </Row> : null
-        }
-      </Container>
+        </Container>
+      </>
     );
   }
 }
+
 export default Book;

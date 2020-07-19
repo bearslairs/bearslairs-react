@@ -20,7 +20,7 @@ function Box(props) {
       }}
       onPointerOver={(e) => setHover(true)}
       onPointerOut={(e) => setHover(false)}>
-      <boxBufferGeometry attach="geometry" args={[props.geometry.width, props.geometry.depth, props.geometry.height]} />
+      <boxBufferGeometry attach="geometry" args={[props.geometry.size.width, props.geometry.size.height, props.geometry.size.depth]} />
       <meshStandardMaterial attach="material" color={(hovered) ? props.color.hover : ((active) ? props.color.active : props.color.default)} wireframe={true} />
     </mesh>
   )
