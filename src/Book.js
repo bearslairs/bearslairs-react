@@ -28,7 +28,10 @@ import Navigation from './Navigation';
 
 const storageSpaces = [
   {
-    category: 'bike storage space',
+    category: {
+      name: 'bike',
+      description: 'open storage spaces'
+    },
     name: 'bicycle/ebike',
     size: {
       width: 0.6,
@@ -43,7 +46,10 @@ const storageSpaces = [
     }
   },
   {
-    category: 'bike storage space',
+    category: {
+      name: 'bike',
+      description: 'open storage space'
+    },
     name: 'enduro / small moto',
     size: {
       width: 1,
@@ -58,7 +64,10 @@ const storageSpaces = [
     }
   },
   {
-    category: 'bike storage space',
+    category: {
+      name: 'bike',
+      description: 'open storage space'
+    },
     name: 'large motorcycle',
     size: {
       width: 1,
@@ -73,7 +82,10 @@ const storageSpaces = [
     }
   },
   {
-    category: 'baby bear locker',
+    category: {
+      name: 'baby bear',
+      description: 'locker storage cupboard'
+    },
     name: 'ski/board, boots',
     size: {
       width: 0.5,
@@ -88,7 +100,10 @@ const storageSpaces = [
     }
   },
   {
-    category: 'baby bear locker',
+    category: {
+      name: 'baby bear',
+      description: 'locker storage cupboard'
+    },
     name: 'luggage',
     size: {
       width: 1,
@@ -103,25 +118,13 @@ const storageSpaces = [
     }
   },
   {
-    category: 'mama bear locker',
-    name: 'small',
+    category: {
+      name: 'mama bear',
+      description: 'locker storage room'
+    },
+    name: 'small locker room',
     size: {
       width: 1,
-      depth: 2.5,
-      height: 2.3
-    },
-    price: {
-      month: 50,
-      quarter: 125,
-      biannual: 200,
-      annual: 300
-    }
-  },
-  {
-    category: 'mama bear locker',
-    name: 'medium',
-    size: {
-      width: 2,
       depth: 2.5,
       height: 2.3
     },
@@ -133,8 +136,29 @@ const storageSpaces = [
     }
   },
   {
-    category: 'papa bear locker',
-    name: 'large',
+    category: {
+      name: 'mama bear',
+      description: 'locker storage room'
+    },
+    name: 'medium locker room',
+    size: {
+      width: 2,
+      depth: 2.5,
+      height: 2.3
+    },
+    price: {
+      month: 200,
+      quarter: 500,
+      biannual: 800,
+      annual: 1200
+    }
+  },
+  {
+    category: {
+      name: 'papa bear',
+      description: 'locker storage room'
+    },
+    name: 'large locker room',
     size: {
       width: 2.7,
       depth: 2.5,
@@ -148,7 +172,7 @@ const storageSpaces = [
     }
   }
 ];
-const storageCategories = storageSpaces.map(lg => lg.category).filter((v, i, a) => a.indexOf(v) === i);
+const storageCategories = storageSpaces.map(lg => lg.category).filter((o, i, s) => i === s.findIndex((t) => (t.name === o.name)));
 const querystring = qs.parse(window.location.search);
 const cookies = new Cookies();
 const CopyApi = 'https://raw.githubusercontent.com/bearslairs/bearslairs-data/master/copy';
@@ -169,6 +193,7 @@ class Book extends Component {
     let locker = lockers.includes(querystring.locker) // if the querystring lang is set, use that
       ? querystring.locker
       : 'small';
+    let selectedCategoryIndex = Math.max(0, storageCategories.findIndex((c) => (c.name === window.location.hash.slice(1).replace('+', ' '))));
     // todo: handle timezone
     let startDate = new Date();
     startDate.setHours(14,0,0,0);
@@ -192,7 +217,8 @@ class Book extends Component {
       copy: {
         languages: []
       },
-      selectedStorageSpace: null
+      selectedStorageSpace: null,
+      selectedCategoryIndex: selectedCategoryIndex
     };
     this.handleChange = this.handleChange.bind(this);
     this.displayReservations = this.displayReservations.bind(this);
@@ -340,13 +366,13 @@ class Book extends Component {
         <Logo language={this.state.language} />
         <Navigation language={this.state.language} />
         <Container>
-          <Tabs defaultActiveKey={storageCategories[0]}>
+          <Tabs defaultActiveKey={storageCategories[this.state.selectedCategoryIndex].name}>
             {
               storageCategories.map(storageCategory => (
-                <Tab eventKey={storageCategory} title={storageCategory}>
+                <Tab eventKey={storageCategory.name} title={storageCategory.name + ' (' + storageCategory.description + ')'}>
                   <Row style={{ height: '300px' }}>
                     {
-                      storageSpaces.filter(lg => lg.category === storageCategory).map((storageSpace, lgI) => (
+                      storageSpaces.filter(lg => lg.category.name === storageCategory.name).map((storageSpace, lgI) => (
                         <Col key={lgI}>
                           <LockerAnimation
                             geometry={storageSpace}
@@ -359,7 +385,7 @@ class Book extends Component {
                   </Row>
                   <Row>
                     {
-                      storageSpaces.filter(lg => lg.category === storageCategory).map((storageSpace, lgI) => (
+                      storageSpaces.filter(lg => lg.category.name === storageCategory.name).map((storageSpace, lgI) => (
                         <Col key={lgI} style={{ textAlign: 'center' }}>
                           <p style={{color: (((this.state.selectedStorageSpace) && (this.state.selectedStorageSpace.name === storageSpace.name)) ? 'hotpink' : '#300b0b')}}>
                             <strong>{storageSpace.name}</strong>
@@ -368,11 +394,14 @@ class Book extends Component {
                             <br />
                             air space (volume in cubic metres): <strong>{Math.round(storageSpace.size.width * storageSpace.size.depth * storageSpace.size.height * 10) / 10} m<sup>3</sup></strong>
                             <br />
-                            width: <strong>{Math.round(storageSpace.size.width * 100)} cm</strong>,
-                            height: <strong>{Math.round(storageSpace.size.height * 100)} cm</strong>,
+                            width: <strong>{Math.round(storageSpace.size.width * 100)} cm</strong>
+                            <br />
                             depth: <strong>{Math.round(storageSpace.size.depth * 100)} cm</strong>
                             <br />
-                            <strong>price</strong>
+                            height: <strong>{Math.round(storageSpace.size.height * 100)} cm</strong>
+                            <br />
+                            <br />
+                            <strong>pricing</strong>
                             <br />
                             1 - 2 months: <strong>bgn {storageSpace.price.month.toFixed(2)} lev</strong> per month,
                             <br />
@@ -442,71 +471,98 @@ class Book extends Component {
               </StripeProvider>
             </Form>
           </Row>
-          <Tabs defaultActiveKey="03-month">
-            <Tab eventKey="01-month" title="monthly">
-            </Tab>
-            <Tab eventKey="03-month" title="3 monthly">
-              {
-                (this.state.selectedStorageSpace)
-                  ? (
-                      <>
-                        <p>
-                          the total price for {
-                            this.getDurationInMonths()
-                          } months storage space between <strong>{
+          <Row>
+            What's going on?
+          </Row>
+          <Row>
+            {
+              (this.state.selectedStorageSpace)
+                ? (
+                    <>
+                      <dl>
+                        <dt>from</dt>
+                        <dd>
+                          {
                             new Intl.DateTimeFormat(
                               'en-GB', {
                                 year: 'numeric',
                                 month: 'long',
                                 day: '2-digit'
                               }).format(new Date(this.state.reservation.from))
-                            }</strong> and <strong>{
+                          }
+                        </dd>
+                        <dt>to</dt>
+                        <dd>
+                          {
                             new Intl.DateTimeFormat(
                               'en-GB', {
                                 year: 'numeric',
                                 month: 'long',
                                 day: '2-digit'
                               }).format(new Date(this.state.reservation.to))
-                            }</strong> is: <strong>bgn {
-                              this.getTotalPrice()
-                            } lev</strong>.
-                        </p>
-                        <p>
-                          this will be billed in monthly installments, as follows:
-                        </p>
-                        <dl>
-                          <dt>
-                            {
-                              this.getInstallments().map(installment => (
-                                <>
-                                  <dt>
-                                    {
-                                      new Intl.DateTimeFormat(
-                                        'en-GB', {
-                                          year: 'numeric',
-                                          month: 'long',
-                                          day: '2-digit'
-                                        }).format(installment.date)
-                                    }:
-                                  </dt>
-                                  <dd>
-                                    {installment.amount}
-                                  </dd>
-                                </>
-                              ))
-                            }
-                          </dt>
-                        </dl>
-                      </>
-                    )
-                  : ('')
-              }
-            </Tab>
-            <Tab eventKey="06-month" title="6 monthly">
-            </Tab>
-            <Tab eventKey="12-month" title="yearly">
-            </Tab>
-          </Tabs>
+                          }
+                        </dd>
+                        <dt>duration</dt>
+                        <dd>
+                          { this.getDurationInMonths() } month{(this.getDurationInMonths() > 1) ? 's' : ''}
+                        </dd>
+                      </dl>
+                      <p>
+                        the total price for a <strong>{
+                          this.getDurationInMonths()
+                        }</strong> month booking in a <strong>{
+                          this.state.selectedStorageSpace.category.name
+                        }/{
+                          this.state.selectedStorageSpace.name
+                        }</strong> between <strong>{
+                          new Intl.DateTimeFormat(
+                            'en-GB', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: '2-digit'
+                            }).format(new Date(this.state.reservation.from))
+                          }</strong> and <strong>{
+                          new Intl.DateTimeFormat(
+                            'en-GB', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: '2-digit'
+                            }).format(new Date(this.state.reservation.to))
+                          }</strong> is: <strong>bgn {
+                            this.getTotalPrice()
+                          } lev</strong>.
+                      </p>
+                      <p>
+                        this will be billed in monthly installments, as follows:
+                      </p>
+                      <dl>
+                        <dt>
+                          {
+                            this.getInstallments().map(installment => (
+                              <>
+                                <dt>
+                                  {
+                                    new Intl.DateTimeFormat(
+                                      'en-GB', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: '2-digit'
+                                      }).format(installment.date)
+                                  }:
+                                </dt>
+                                <dd>
+                                  {installment.amount}
+                                </dd>
+                              </>
+                            ))
+                          }
+                        </dt>
+                      </dl>
+                    </>
+                  )
+                : ('')
+            }
+          </Row>
           {
             /*
             (window.location.hostname === 'localhost') ?
