@@ -100,9 +100,21 @@ h3 {
   background-color: rgb(48, 11, 11);
 }
 
+#container-nav .btn {
+  display: flex;
+  align-items: center;
+}
+
+#container-nav .btn,
 #container-security .btn,
 .card-footer .btn {
+  text-transform: uppercase;
+  color: rgb(255, 255, 255);
   background-color: rgb(123, 179, 44);
+}
+
+#container-nav a.btn:hover {
+  color: rgb(255, 255, 255);
 }
 
 #container-security {

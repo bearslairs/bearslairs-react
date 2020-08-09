@@ -175,7 +175,7 @@ const storageSpaces = [
 const storageCategories = storageSpaces.map(lg => lg.category).filter((o, i, s) => i === s.findIndex((t) => (t.name === o.name)));
 const querystring = qs.parse(window.location.search);
 const cookies = new Cookies();
-const CopyApi = 'https://raw.githubusercontent.com/bearslairs/bearslairs-data/master/copy';
+//const CopyApi = 'https://raw.githubusercontent.com/bearslairs/bearslairs-data/master/copy';
 const languages = ['bg', 'en', 'ru'];
 const lockers = ['small', 'medium', 'large', 'bicycle', 'motorcycle', 'large-motorcycle'];
 const client = Stitch.initializeDefaultAppClient('bearslairsstitch-pkblb');
@@ -246,6 +246,7 @@ class Book extends Component {
         this.setState({stripe: window.Stripe('pk_test_kSrcl4f2BEKQTkQCIuDih41I0nfCqc5I')});
       });
     }
+    /*
     fetch(CopyApi + '/' + this.state.language + '/book.json')
       .then(responseCopyApi => responseCopyApi.json())
       .then((copy) => {
@@ -256,6 +257,7 @@ class Book extends Component {
         }));
       })
       .catch(console.log);
+    */
     this.db = serviceClient.db('bearslairs-bansko');
     this.displayReservationsOnLoad();
   }
@@ -369,7 +371,7 @@ class Book extends Component {
           <Tabs defaultActiveKey={storageCategories[this.state.selectedCategoryIndex].name}>
             {
               storageCategories.map(storageCategory => (
-                <Tab eventKey={storageCategory.name} title={storageCategory.name + ' (' + storageCategory.description + ')'}>
+                <Tab key={storageCategory.name} eventKey={storageCategory.name} title={storageCategory.name + ' (' + storageCategory.description + ')'}>
                   <Row style={{ height: '300px' }}>
                     {
                       storageSpaces.filter(lg => lg.category.name === storageCategory.name).map((storageSpace, lgI) => (

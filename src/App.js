@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { LinkContainer } from 'react-router-bootstrap'
-import Button from 'react-bootstrap/Button';
+import { HashLink } from 'react-router-hash-link';
 import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
@@ -52,28 +51,28 @@ class App extends Component {
       language: language,
       copy: prevState.copy
     }));
-    cookies.set('lang', language, { path: '/' });
+    cookies.set('lang', language, { path: '/', sameSite: 'strict' });
     fetch(CopyApi + '/' + language + '/home.json')
-    .then(responseCopyApi => responseCopyApi.json())
-    .then((copy) => {
-      this.setState(prevState => ({
-        language: prevState.language,
-        copy: copy
-      }));
-    })
-    .catch(console.log);
-    fetch(UbiBotApi)
-    .then(responseUbiBotApi => responseUbiBotApi.json())
-    .then((container) => {
-      if (container.result === 'success') {
-        let lastValues = JSON.parse(container.channel.last_values);
+      .then(responseCopyApi => responseCopyApi.json())
+      .then((copy) => {
         this.setState(prevState => ({
-          temperature: lastValues.field1,
-          humidity: lastValues.field2
+          language: prevState.language,
+          copy: copy
         }));
-      }
-    })
-    .catch(console.log);
+      })
+      .catch(console.log);
+    fetch(UbiBotApi)
+      .then(responseUbiBotApi => responseUbiBotApi.json())
+      .then((container) => {
+        if (container.result === 'success') {
+          let lastValues = JSON.parse(container.channel.last_values);
+          this.setState(prevState => ({
+            temperature: lastValues.field1,
+            humidity: lastValues.field2
+          }));
+        }
+      })
+      .catch(console.log);
   }
 
   render() {
@@ -176,11 +175,9 @@ class App extends Component {
                       </p>
                     ))
                   }
-                  <LinkContainer to={'/book'}>
-                    <Button size="sm">
-                      book now
-                    </Button>
-                  </LinkContainer>
+                  <HashLink to={'/book'} className="btn">
+                    book now
+                  </HashLink>
                 </Col>
               ))
             }
@@ -227,11 +224,9 @@ class App extends Component {
                   </ul>
                 </Card.Body>
                 <Card.Footer>
-                  <LinkContainer to={card.button.link}>
-                    <Button size="sm">
-                      {card.button.text}
-                    </Button>
-                  </LinkContainer>
+                  <HashLink to={card.button.link} className="btn">
+                    {card.button.text}
+                  </HashLink>
                 </Card.Footer>
               </Card>
               </Col>
@@ -306,11 +301,9 @@ class App extends Component {
                     </ul>
                   </Card.Body>
                   <Card.Footer>
-                    <LinkContainer to={card.button.link}>
-                      <Button size="sm">
-                        {card.button.text}
-                      </Button>
-                    </LinkContainer>
+                    <HashLink to={card.button.link} className="btn">
+                      {card.button.text}
+                    </HashLink>
                   </Card.Footer>
                 </Card>
                 </Col>
@@ -336,11 +329,9 @@ class App extends Component {
               </Row>
               <Row className="justify-content-xl-center justify-content-md-center">
                 <Col xl="auto" md="auto">
-                  <LinkContainer to={'/book'}>
-                    <Button size="sm">
-                      book now
-                    </Button>
-                  </LinkContainer>
+                  <HashLink to={'/book'} className="btn">
+                    book now
+                  </HashLink>
                 </Col>
               </Row>
             </Container>
@@ -349,31 +340,37 @@ class App extends Component {
       </Container>
       <Container id="container-map" fluid>
         <div style={{ height: '650px', width: '100%' }}>
-          <GoogleMapReact
-            bootstrapURLKeys={{ key: 'AIzaSyCKw8by28pNI5tlimezyyjgtXz_Nvkq2-Y' }}
-            defaultCenter={{ lat: 41.820582, lng: 23.478257 }}
-            defaultZoom={ 14 }
-            onGoogleApiLoaded={({map, maps}) => {
-              let marker = new maps.Marker({
-                position: { lat: 41.820582, lng: 23.478257 },
-                map,
-                title: 'Bears Lairs, Bansko',
-                description: 'secure, self-storage in bansko with access at your convenience',
-                link: {
-                  url: 'https://www.google.com/maps/place/Bears+Lairs/@41.8223813,23.4681867,15z/data=!4m5!3m4!1s0x0:0xadd4ea4c0b9a3216!8m2!3d41.820631!4d23.478215',
-                  text: 'maps.google.com/Bears+Lairs'
-                }
-              });
-              let infoWindow = new maps.InfoWindow({
-                content: '<h4><img src="favicon-32x32.png" style="margin-right: 6px;" class="rounded-circle" />' + marker.title + '</h4><p>' + marker.description + '<br /><a href="' + marker.link.url + '">' + marker.link.text + '</a></p>'
-              });
-              infoWindow.open(map, marker);
-              marker.addListener('click', () => {
-                map.setZoom(14);
-                map.setCenter(marker.getPosition());
-                infoWindow.open(map, marker);
-              });
-            }} />
+          {
+            (window.location.hostname === 'localhost')
+              ? null
+              : (
+                  <GoogleMapReact
+                    bootstrapURLKeys={{ key: 'AIzaSyCKw8by28pNI5tlimezyyjgtXz_Nvkq2-Y' }}
+                    defaultCenter={{ lat: 41.820582, lng: 23.478257 }}
+                    defaultZoom={ 14 }
+                    onGoogleApiLoaded={({map, maps}) => {
+                      let marker = new maps.Marker({
+                        position: { lat: 41.820582, lng: 23.478257 },
+                        map,
+                        title: 'Bears Lairs, Bansko',
+                        description: 'secure, self-storage in bansko with access at your convenience',
+                        link: {
+                          url: 'https://www.google.com/maps/place/Bears+Lairs/@41.8223813,23.4681867,15z/data=!4m5!3m4!1s0x0:0xadd4ea4c0b9a3216!8m2!3d41.820631!4d23.478215',
+                          text: 'maps.google.com/Bears+Lairs'
+                        }
+                      });
+                      let infoWindow = new maps.InfoWindow({
+                        content: '<h4><img src="favicon-32x32.png" style="margin-right: 6px;" class="rounded-circle" />' + marker.title + '</h4><p>' + marker.description + '<br /><a href="' + marker.link.url + '">' + marker.link.text + '</a></p>'
+                      });
+                      infoWindow.open(map, marker);
+                      marker.addListener('click', () => {
+                        map.setZoom(14);
+                        map.setCenter(marker.getPosition());
+                        infoWindow.open(map, marker);
+                      });
+                    }} />
+                )
+          }
         </div>
       </Container>
       <Container id="container-footer" fluid>

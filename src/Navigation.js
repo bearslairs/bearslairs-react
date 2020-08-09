@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { HashLink } from 'react-router-hash-link';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 
@@ -10,7 +11,7 @@ class Navigation extends Component {
       language: (props.language || 'en'),
       links: [
         {
-          href: '/#about',
+          href: '/#container-about',
           text: {
             'bg': 'about',
             'en': 'about',
@@ -18,15 +19,7 @@ class Navigation extends Component {
           }
         },
         {
-          href: '/#prices',
-          text: {
-            'bg': 'prices',
-            'en': 'prices',
-            'ru': 'prices'
-          }
-        },
-        {
-          href: '/#location',
+          href: '/#container-map',
           text: {
             'bg': 'location',
             'en': 'location',
@@ -51,11 +44,17 @@ class Navigation extends Component {
         <Nav className="m-auto">
           {
             this.state.links.map(link => (
-              <Nav.Link href={link.href}>
-                {
-                  link.text[this.state.language]
-                }
-              </Nav.Link>
+                (link.text['en'].startsWith('book'))
+                  ? (
+                      <HashLink to={link.href} key={link.href} className="btn">
+                        {link.text[this.state.language]}
+                      </HashLink>
+                    )
+                  : (
+                      <Nav.Link href={link.href} key={link.href}>
+                        {link.text[this.state.language]}
+                      </Nav.Link>
+                    )
             ))
           }
         </Nav>
